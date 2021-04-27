@@ -43,7 +43,7 @@ fn build_hermit(src_dir: &Path, target_dir_opt: Option<&Path>) {
 		None => src_dir.join("target"),
 	};
 
-	if profile == "release" {
+	if profile == "release" || profile == "release-lto" {
 		cmd.arg("--release");
 	}
 
@@ -88,6 +88,9 @@ fn build_hermit(src_dir: &Path, target_dir_opt: Option<&Path>) {
 	#[cfg(feature = "instrument")]
 	{
 		cmd.env("RUSTFLAGS", "-Z instrument-mcount");
+	}
+	#[cfg(not(feature = "instrument"))]
+	{
 		// if instrument is not set, ensure that instrument is not in environment variables!
 		cmd.env(
 			"RUSTFLAGS",

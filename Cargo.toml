@@ -1,3 +1,4 @@
+cargo-features = ["named-profiles"]
 [workspace]
 members = [
     "hermit-abi",
@@ -14,8 +15,12 @@ exclude = ["target", "loader", "libhermit-rs"]
 opt-level = 3
 debug = false
 rpath = false
-lto = "thin"
+lto = false
 debug-assertions = false
+
+[profile.release-lto]
+inherits = "release"
+lto = "thin"
 
 [profile.dev]
 opt-level = 1      # controls the `--opt-level` the compiler builds with

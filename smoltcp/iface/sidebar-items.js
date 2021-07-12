@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["EthernetInterface","An Ethernet network interface."],["EthernetInterfaceBuilder","A builder structure used for creating a Ethernet network interface."],["Neighbor","A cached neighbor."],["NeighborCache","A neighbor cache backed by a map."],["Route","A prefix of addresses that should be routed via a router"],["Routes","A routing table."]]});

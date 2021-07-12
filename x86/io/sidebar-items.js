@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["inb","Read 8 bits from port"],["inl","Read 32 bits from port"],["inw","Read 16 bits from port"],["outb","Write 8 bits to port"],["outl","Write 32 bits to port"],["outw","Write 16 bits to port"]]});

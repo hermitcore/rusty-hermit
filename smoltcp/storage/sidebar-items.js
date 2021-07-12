@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Assembler","A buffer (re)assembler."],["PacketBuffer","An UDP packet ring buffer."],["PacketMetadata","Size and header of a packet."],["RingBuffer","A ring buffer."]],"trait":[["Resettable","A trait for setting a value to a known state."]]});

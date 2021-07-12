@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["stack_jmp",""]],"mod":[["eflags","Processor state stored in the EFLAGS register."],["segmentation",""],["task","Helpers to program the task state segment. See Intel 3a, Chapter 7"]]});

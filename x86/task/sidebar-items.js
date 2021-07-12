@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["load_tr","Loads the task register."],["tr","Returns the current value of the task register."]]});

@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/x86-0.34.0/src/controlregs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>controlregs.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../x86/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+</pre><pre class="rust">
+<span class="doccomment">//! Functions to read and write control registers.</span>
+<span class="doccomment">//! See Intel Vol. 3a Section 2.5, especially Figure 2-7.</span>
+
+<span class="kw">use</span> <span class="ident">bitflags</span>::<span class="kw-2">*</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::arch</span>::{<span class="ident">_xgetbv</span>, <span class="ident">_xsetbv</span>};
+
+<span class="macro">bitflags!</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cr0</span>: <span class="ident">usize</span> {
+        <span class="kw">const</span> <span class="ident">CR0_ENABLE_PAGING</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>;
+        <span class="kw">const</span> <span class="ident">CR0_CACHE_DISABLE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">30</span>;
+        <span class="kw">const</span> <span class="ident">CR0_NOT_WRITE_THROUGH</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">29</span>;
+        <span class="kw">const</span> <span class="ident">CR0_ALIGNMENT_MASK</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
+        <span class="kw">const</span> <span class="ident">CR0_WRITE_PROTECT</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
+        <span class="kw">const</span> <span class="ident">CR0_NUMERIC_ERROR</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+        <span class="kw">const</span> <span class="ident">CR0_EXTENSION_TYPE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>;
+        <span class="kw">const</span> <span class="ident">CR0_TASK_SWITCHED</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>;
+        <span class="kw">const</span> <span class="ident">CR0_EMULATE_COPROCESSOR</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>;
+        <span class="kw">const</span> <span class="ident">CR0_MONITOR_COPROCESSOR</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">CR0_PROTECTED_MODE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">0</span>;
+    }
+}
+
+<span class="macro">bitflags!</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cr4</span>: <span class="ident">usize</span> {
+        <span class="doccomment">/// Enables use of Protection Keys (MPK).</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_PROTECTION_KEY</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">22</span>;
+        <span class="doccomment">/// Enable Supervisor Mode Access Prevention.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_SMAP</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">21</span>;
+        <span class="doccomment">/// Enable Supervisor Mode Execution Protection.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_SMEP</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">20</span>;
+        <span class="doccomment">/// Enable XSAVE and Processor Extended States.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_OS_XSAVE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
+        <span class="doccomment">/// Enables process-context identifiers (PCIDs).</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_PCID</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">17</span>;
+        <span class="doccomment">/// Enables the instructions RDFSBASE, RDGSBASE, WRFSBASE, and WRGSBASE.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_FSGSBASE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
+        <span class="doccomment">/// Enables Safer Mode Extensions (Trusted Execution Technology (TXT)).</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_SMX</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">14</span>;
+        <span class="doccomment">/// Enables Virtual Machine Extensions.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_VMX</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">13</span>;
+        <span class="doccomment">/// Enables 5-Level Paging.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_LA57</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">12</span>;
+        <span class="doccomment">/// Enable User-Mode Instruction Prevention (the SGDT, SIDT, SLDT, SMSW and STR instructions</span>
+        <span class="doccomment">/// cannot be executed if CPL &gt; 0).</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_UMIP</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">11</span>;
+        <span class="doccomment">/// Enables unmasked SSE exceptions.</span>
+        <span class="kw">const</span> <span class="ident">CR4_UNMASKED_SSE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">10</span>;
+        <span class="doccomment">/// Enables Streaming SIMD Extensions (SSE) instructions and fast FPU</span>
+        <span class="doccomment">/// save &amp; restore FXSAVE and FXRSTOR instructions.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_SSE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">9</span>;
+        <span class="doccomment">/// Enable Performance-Monitoring Counters</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_PPMC</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>;
+        <span class="doccomment">/// Enable shared (PDE or PTE) address translation between address spaces.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_GLOBAL_PAGES</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>;
+        <span class="doccomment">/// Enable machine check interrupts.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_MACHINE_CHECK</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>;
+        <span class="doccomment">/// Enable: Physical Address Extension (allows to address physical</span>
+        <span class="doccomment">/// memory larger than 4 GiB).</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_PAE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+        <span class="doccomment">/// Enable Page Size Extensions (allows for pages larger than the traditional 4 KiB size)</span>
+        <span class="doccomment">/// Note: If Physical Address Extension (PAE) is used, the size of large pages is reduced</span>
+        <span class="doccomment">/// from 4 MiB down to 2 MiB, and PSE is always enabled, regardless of the PSE bit in CR4.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_PSE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>;
+        <span class="doccomment">/// If set, enables debug register based breaks on I/O space access.</span>
+        <span class="kw">const</span> <span class="ident">CR4_DEBUGGING_EXTENSIONS</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>;
+        <span class="doccomment">/// If set, disables ability to take time-stamps.</span>
+        <span class="kw">const</span> <span class="ident">CR4_TIME_STAMP_DISABLE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>;
+        <span class="doccomment">/// If set, enables support for the virtual interrupt flag (VIF) in protected mode.</span>
+        <span class="kw">const</span> <span class="ident">CR4_VIRTUAL_INTERRUPTS</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>;
+        <span class="doccomment">/// If set, enables support for the virtual interrupt flag (VIF) in virtual-8086 mode.</span>
+        <span class="kw">const</span> <span class="ident">CR4_ENABLE_VME</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">0</span>;
+    }
+}
+
+<span class="macro">bitflags!</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Xcr0</span>: <span class="ident">u64</span> {
+        <span class="kw">const</span> <span class="ident">XCR0_PKRU_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">9</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_HI16_ZMM_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_ZMM_HI256_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_OPMASK_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_BNDCSR_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_BNDREG_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_AVX_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_SSE_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">XCR0_FPU_MMX_STATE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">0</span>;
+    }
+}
+
+<span class="doccomment">/// Read cr0</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr0</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cr0</span> {
+    <span class="kw">let</span> <span class="ident">ret</span>: <span class="ident">usize</span>;
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov %cr0, $0&quot;</span> : <span class="string">&quot;=r&quot;</span> (<span class="ident">ret</span>));
+    <span class="ident">Cr0::from_bits_truncate</span>(<span class="ident">ret</span>)
+}
+
+<span class="doccomment">/// Write cr0.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr0_write</span>(<span class="ident">val</span>: <span class="ident">Cr0</span>) {
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov $0, %cr0&quot;</span> :: <span class="string">&quot;r&quot;</span> (<span class="ident">val</span>.<span class="ident">bits</span>) : <span class="string">&quot;memory&quot;</span>);
+}
+
+<span class="doccomment">/// Contains page-fault linear address.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr2</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="ident">ret</span>: <span class="ident">usize</span>;
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov %cr2, $0&quot;</span> : <span class="string">&quot;=r&quot;</span> (<span class="ident">ret</span>));
+    <span class="ident">ret</span>
+}
+
+<span class="doccomment">/// Write cr2, for instance to reset cr2</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr2_write</span>(<span class="ident">val</span>: <span class="ident">u64</span>) {
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov $0, %cr2&quot;</span> :: <span class="string">&quot;r&quot;</span> (<span class="ident">val</span>) : <span class="string">&quot;memory&quot;</span>);
+}
+
+<span class="doccomment">/// Contains page-table root pointer.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">let</span> <span class="ident">ret</span>: <span class="ident">u64</span>;
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov %cr3, $0&quot;</span> : <span class="string">&quot;=r&quot;</span> (<span class="ident">ret</span>));
+    <span class="ident">ret</span>
+}
+
+<span class="doccomment">/// Switch page-table PML4 pointer.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr3_write</span>(<span class="ident">val</span>: <span class="ident">u64</span>) {
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov $0, %cr3&quot;</span> :: <span class="string">&quot;r&quot;</span> (<span class="ident">val</span>) : <span class="string">&quot;memory&quot;</span>);
+}
+
+<span class="doccomment">/// Contains various flags to control operations in protected mode.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr4</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cr4</span> {
+    <span class="kw">let</span> <span class="ident">ret</span>: <span class="ident">usize</span>;
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov %cr4, $0&quot;</span> : <span class="string">&quot;=r&quot;</span> (<span class="ident">ret</span>));
+    <span class="ident">Cr4::from_bits_truncate</span>(<span class="ident">ret</span>)
+}
+
+<span class="doccomment">/// Write cr4.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no-run</span>
+<span class="doccomment">/// unsafe {</span>
+<span class="doccomment">///   let cr4 = cr4();</span>
+<span class="doccomment">///   let cr4 = cr4 | Cr4::CR4_ENABLE_PSE;</span>
+<span class="doccomment">///   cr4_write(cr4);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cr4_write</span>(<span class="ident">val</span>: <span class="ident">Cr4</span>) {
+    <span class="macro">llvm_asm!</span>(<span class="string">&quot;mov $0, %cr4&quot;</span> :: <span class="string">&quot;r&quot;</span> (<span class="ident">val</span>.<span class="ident">bits</span>) : <span class="string">&quot;memory&quot;</span>);
+}
+
+<span class="doccomment">/// Read Extended Control Register XCR0.</span>
+<span class="doccomment">/// Only supported if CR4_ENABLE_OS_XSAVE is set.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">xcr0</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Xcr0</span> {
+    <span class="ident">Xcr0::from_bits_truncate</span>(<span class="ident">_xgetbv</span>(<span class="number">0</span>))
+}
+
+<span class="doccomment">/// Write to Extended Control Register XCR0.</span>
+<span class="doccomment">/// Only supported if CR4_ENABLE_OS_XSAVE is set.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">xcr0_write</span>(<span class="ident">val</span>: <span class="ident">Xcr0</span>) {
+    <span class="ident">_xsetbv</span>(<span class="number">0</span>, <span class="ident">val</span>.<span class="ident">bits</span>);
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="x86" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

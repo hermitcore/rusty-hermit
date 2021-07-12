@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_core_ids","This function tries to retrieve information on all the “cores” active on this system."],["set_for_current","This function tries to pin the current thread to the specified core."]],"struct":[["CoreId","This represents a CPU core."]]});

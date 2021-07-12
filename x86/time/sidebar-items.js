@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["rdtsc","Read the time stamp counter."],["rdtscp","Read the time stamp counter."]]});

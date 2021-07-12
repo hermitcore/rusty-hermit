@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The smoltcp library is built in a layered structure, with the layers corresponding to the levels of API abstraction. Only the highest layers would be used by a typical application; however, the goal of smoltcp is not just to provide a simple interface for writing applications but also to be a toolbox of networking primitives, so every layer is fully exposed and documented."><meta name="keywords" content="rust, rustlang, rust-lang, smoltcp"><title>smoltcp - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../smoltcp/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate smoltcp</p><div class="block version"><p>Version 0.7.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all smoltcp's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#enums">Enums</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="smoltcp" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">smoltcp</a><button id="copy-path" onclick="copy_path(this)"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/smoltcp/lib.rs.html#1-169" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <em>smoltcp</em> library is built in a layered structure, with the layers corresponding
+to the levels of API abstraction. Only the highest layers would be used by a typical
+application; however, the goal of <em>smoltcp</em> is not just to provide a simple interface
+for writing applications but also to be a toolbox of networking primitives, so
+every layer is fully exposed and documented.</p>
+<p>When discussing networking stacks and layering, often the <a href="https://en.wikipedia.org/wiki/OSI_model">OSI model</a> is invoked.
+<em>smoltcp</em> makes no effort to conform to the OSI model as it is not applicable to TCP/IP.</p>
+<h1 id="the-socket-layer" class="section-header"><a href="#the-socket-layer">The socket layer</a></h1>
+<p>The socket layer APIs are provided in the module <a href="socket/index.html">socket</a>; currently,
+raw, ICMP, TCP, and UDP sockets are provided. The socket API provides the usual primitives,
+but necessarily differs in many from the <a href="https://en.wikipedia.org/wiki/Berkeley_sockets">Berkeley socket API</a>, as the latter was
+not designed to be used without heap allocation.</p>
+<p>The socket layer provides the buffering, packet construction and validation, and (for
+stateful sockets) the state machines, but it is interface-agnostic. An application must
+use sockets together with a network interface.</p>
+<h1 id="the-interface-layer" class="section-header"><a href="#the-interface-layer">The interface layer</a></h1>
+<p>The interface layer APIs are provided in the module <a href="iface/index.html">iface</a>; currently,
+Ethernet interface is provided.</p>
+<p>The interface layer handles the control messages, physical addressing and neighbor discovery.
+It routes packets to and from sockets.</p>
+<h1 id="the-physical-layer" class="section-header"><a href="#the-physical-layer">The physical layer</a></h1>
+<p>The physical layer APIs are provided in the module <a href="phy/index.html">phy</a>; currently,
+raw socket and TAP interface are provided. In addition, two <em>middleware</em> interfaces
+are provided: the <em>tracer device</em>, which prints a human-readable representation of packets,
+and the <em>fault injector device</em>, which randomly introduces errors into the transmitted
+and received packet sequences.</p>
+<p>The physical layer handles interaction with a platform-specific network device.</p>
+<h1 id="the-wire-layers" class="section-header"><a href="#the-wire-layers">The wire layers</a></h1>
+<p>Unlike the higher layers, the wire layer APIs will not be used by a typical application.
+They however are the bedrock of <em>smoltcp</em>, and everything else is built on top of them.</p>
+<p>The wire layer APIs are designed by the principle “make illegal states irrepresentable”.
+If a wire layer object can be constructed, then it can also be parsed from or emitted to
+a lower level.</p>
+<p>The wire layer APIs also provide <em>tcpdump</em>-like pretty printing.</p>
+<h2 id="the-representation-layer" class="section-header"><a href="#the-representation-layer">The representation layer</a></h2>
+<p>The representation layer APIs are provided in the module <a href="wire/index.html">wire</a>.</p>
+<p>The representation layer exists to reduce the state space of raw packets. Raw packets
+may be nonsensical in a multitude of ways: invalid checksums, impossible combinations of flags,
+pointers to fields out of bounds, meaningless options… Representations shed all that,
+as well as any features not supported by <em>smoltcp</em>.</p>
+<h2 id="the-packet-layer" class="section-header"><a href="#the-packet-layer">The packet layer</a></h2>
+<p>The packet layer APIs are also provided in the module <a href="wire/index.html">wire</a>.</p>
+<p>The packet layer exists to provide a more structured way to work with packets than
+treating them as sequences of octets. It makes no judgement as to content of the packets,
+except where necessary to provide safe access to fields, and strives to implement every
+feature ever defined, to ensure that, when the representation layer is unable to make sense
+of a packet, it is still logged correctly and in full.</p>
+<h2 id="packet-and-representation-layer-support" class="section-header"><a href="#packet-and-representation-layer-support">Packet and representation layer support</a></h2><table><thead><tr><th>Protocol</th><th>Packet</th><th>Representation</th></tr></thead><tbody>
+<tr><td>Ethernet</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>ARP</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>IPv4</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>ICMPv4</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>IGMPv1/2</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>IPv6</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>ICMPv6</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>TCP</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>UDP</td><td>Yes</td><td>Yes</td></tr>
+</tbody></table>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="iface/index.html" title="smoltcp::iface mod">iface</a></td><td class="docblock-short"><p>Network interface logic.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="phy/index.html" title="smoltcp::phy mod">phy</a></td><td class="docblock-short"><p>Access to networking hardware.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="socket/index.html" title="smoltcp::socket mod">socket</a></td><td class="docblock-short"><p>Communication between endpoints.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="storage/index.html" title="smoltcp::storage mod">storage</a></td><td class="docblock-short"><p>Specialized containers.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="time/index.html" title="smoltcp::time mod">time</a></td><td class="docblock-short"><p>Time structures.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="wire/index.html" title="smoltcp::wire mod">wire</a></td><td class="docblock-short"><p>Low-level packet access and construction.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.Error.html" title="smoltcp::Error enum">Error</a></td><td class="docblock-short"><p>The error type for the networking stack.</p>
+</td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.Result.html" title="smoltcp::Result type">Result</a></td><td class="docblock-short"><p>The result type for the networking stack.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="smoltcp" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>

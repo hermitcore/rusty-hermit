@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["VmFail","Possible outcomes of VMfail pseudo-function used to convey VMX operation errors."]],"mod":[["vmcs","Virtual-machine control structure fields."]],"type":[["Result","A specialized `Result` type for VMX operations."]]});
